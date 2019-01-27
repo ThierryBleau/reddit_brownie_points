@@ -30,7 +30,6 @@ def data_ironing(data):
         new_matrix = np.vstack((new_matrix,vector))
     occ_matrix = get_occurence_matrix(data)
     new_matrix = np.vstack((new_matrix,occ_matrix.T))
-    print(new_matrix.shape)
     return(new_matrix)
 
 def get_occurence_matrix(data):
@@ -50,25 +49,32 @@ def closed_form():
     return(regression)
 
 def matrix_gradient(x,y,weight_vector):
-    term1 = np.dot(x.T,x).dot(weight_vector)
-    term2 = np.dot(x.T,y)
-    return(term1-term2)
+    XTX = np.dot(x,x.T)
+    XTXw = np.dot(XTX,weight_vector)
+    XTy = np.dot(x,y)
+    return(XTXw-XTy)
 
 def main_gradient_function():
     x = data_ironing(raw)
     num_features = x.shape[0]
     diff = 0
+    norm_diff = 0
     beta = 0
     eta_0 = 0.001
-    epsilon = 0.01
-    weight_vector = np.zeros(num_features)
+    epsilon = 0.1
+    weight_vector = np.ones(num_features)
     alpha = eta_0/(1+beta)
-    while diff < epsilon:
+    while norm_diff < epsilon:
         new_weight_vector = weight_vector - 2*alpha*matrix_gradient(x,y,weight_vector)
         diff = new_weight_vector - weight_vector
+        norm_diff = np.linalg.norm(diff)
         weight_vector = new_weight_vector
         print(weight_vector)
     return(weight_vector)
+
+def prediction(weight_vector,comment_data):
+    pop_pred = np.dot(weight_vector,comment_data)
+    return(pop_pred)
 
 
 print(main_gradient_function())
