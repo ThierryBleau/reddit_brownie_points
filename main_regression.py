@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import data_preparation
 
 raw, hfwords = data_preparation.main()
+raw, validation, testing = data_preparation.partition(raw,10000)
 #potential feature: proximity of popular word to the beginning, number of words in comment, 
 def get_vector(data,feature):
     y = []

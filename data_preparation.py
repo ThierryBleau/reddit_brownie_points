@@ -85,7 +85,6 @@ def main():
     data_prepped = prep(data)
     most_occured_words = pooled_words(data_prepped,160)
     data = feature_most_occured(data_prepped,160, most_occured_words)
-    train, valid, test = partition(data_prepped, 10000)
     
     return(data_prepped,most_occured_words)
 
