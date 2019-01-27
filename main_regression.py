@@ -27,9 +27,13 @@ def data_ironing(data):
             
         else:
             continue
+        #print(vector)
         new_matrix = np.vstack((new_matrix,vector))
+    print(new_matrix.shape)
     occ_matrix = get_occurence_matrix(data)
-    new_matrix = np.vstack((new_matrix,occ_matrix.T))
+    print(occ_matrix.shape)
+    new_matrix = np.vstack((new_matrix,occ_matrix))
+    print(new_matrix.shape)
     return(new_matrix)
 
 def get_occurence_matrix(data):
@@ -38,7 +42,7 @@ def get_occurence_matrix(data):
         occurence_matrix.append([])
         for hfword in data[i]['matrix']:
             occurence_matrix[i].append(hfword[1])
-    return(np.array(occurence_matrix))
+    return(np.array(occurence_matrix).T)
 
 
 
@@ -48,33 +52,42 @@ def closed_form():
     regression = w[0] + w[1]*raw
     return(regression)
 
-def matrix_gradient(x,y,weight_vector):
-    XTX = np.dot(x,x.T)
+def matrix_gradient(XTX,XTy,weight_vector):
+    
     XTXw = np.dot(XTX,weight_vector)
-    XTy = np.dot(x,y)
+    
     return(XTXw-XTy)
 
 def main_gradient_function():
     x = data_ironing(raw)
     num_features = x.shape[0]
     diff = 0
-    norm_diff = 0
+    norm_diff = 100000
     beta = 0
-    eta_0 = 0.001
-    epsilon = 0.1
+    eta_0 = 0.000001
+    epsilon = 0.01
     weight_vector = np.ones(num_features)
     alpha = eta_0/(1+beta)
-    while norm_diff < epsilon:
-        new_weight_vector = weight_vector - 2*alpha*matrix_gradient(x,y,weight_vector)
+    XTX = np.dot(x,x.T)
+    XTy = np.dot(x,y)
+    counter = 0
+    while norm_diff > epsilon:
+        new_weight_vector = weight_vector - 2*alpha*matrix_gradient(XTX,XTy,weight_vector)
         diff = new_weight_vector - weight_vector
         norm_diff = np.linalg.norm(diff)
+        print(norm_diff)
         weight_vector = new_weight_vector
-        print(weight_vector)
+        #print(weight_vector.shape)
+        #print(weight_vector)
+        counter = counter +1
+    print(weight_vector)
+    print(counter)
     return(weight_vector)
 
-def prediction(weight_vector,comment_data):
-    pop_pred = np.dot(weight_vector,comment_data)
+def prediction(x,w):
+    pop_pred = np.dot(x,w)
     return(pop_pred)
 
 
-print(main_gradient_function())
+
+main_gradient_function()
