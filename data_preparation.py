@@ -87,7 +87,7 @@ def main():
     data = feature_most_occured(data_prepped,160, most_occured_words)
     train, valid, test = partition(data_prepped, 10000)
     
-    return(data_prepped)
+    return(data_prepped,most_occured_words)
 
 
 
