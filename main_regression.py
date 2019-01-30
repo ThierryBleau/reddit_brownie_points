@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import data_preparation
 
-training_data, hfwords = data_preparation.main()
+training_data, hfwords = data_preparation.main2() 
+'''training_data, hfwords = data_preparation.main2() ''' #use this for the new features
 training_data, validation, testing = data_preparation.partition(training_data,10000)
 #potential feature: proximity of popular word to the beginning, number of words in comment, 
 def get_vector(data,feature):
@@ -25,6 +26,9 @@ def data_ironing(data):
             
         elif col == 'children':
             vector = get_vector(data,'children')
+            
+        elif col == 'avg_char_len':
+            vector = get_vector(data,'avg_char_len')
             
         else:
             continue
