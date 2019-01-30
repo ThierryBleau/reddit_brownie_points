@@ -38,6 +38,17 @@ def prep(data_input):
     return data_input
 
 
+def prep2(data):
+    for i in range(0,len(data)):
+        data[i]['char_lenght']=len(data[i]['text'])
+        data[i]['text'] = data[i]['text'].lower().split()
+        data[i]['n_o_words'] = len(data[i]['text'])  
+        #NOTE if we put this to the regression and the next one, the error will be 18
+        #maybe because they have a high covariance
+        data[i]['avg_char_len']=data[i]['char_lenght']/data[i]['n_o_words']        
+    return data
+
+
 
 def pooled_words(data,n_words):
     #makes a list containing every word
@@ -77,6 +88,31 @@ def feature_most_occured(data,n_words, most_occured_words):
     return data
 
 
+#NOT USED
+def order_of_most_occured(data,n_words, most_occured_words):
+    #creates a matrix for every dict member; size is 2 rows, 160 colums
+    #1st row is index, 2nd is word's number of occurence in the comment
+    for i in range(len(data)):
+        data[i]['index']=[]
+        data[i]['occurence']=[]
+        data[i]['ordering']=[]
+
+        for j in range(n_words):
+            try:
+                data[i]['index'].append(j)
+                data[i]['occurence'].append(data[i]['text'].count(most_occured_words[j]))
+                data[i]['ordering'].append(data[i]['text'].index(most_occured_words[j])+1)
+            except ValueError:
+                data[i]['ordering'].append(0)
+        data[i]['matrix'] = np.column_stack((data[i]['index'], data[i]['occurence'], data[i]['ordering']))
+        del(data[i]['index'])
+        del(data[i]['occurence'])
+        del(data[i]['ordering'])
+
+    return data
+
+
+
 
 def main():
     with open("proj1_data.json") as fp:
@@ -89,6 +125,16 @@ def main():
     return(data_prepped,most_occured_words)
 
 
+def main2():
+    with open("proj1_data.json") as fp:
+        data = json.load(fp)
+    
+    data_prepped = prep2(data)
+    most_occured_words = pooled_words(data_prepped,160)
+    data = feature_most_occured(data_prepped,160,most_occured_words)
+    #call the next line of you want to add the ordering of the most occured words or distance
+    #data = order_of_most_occured(data_prepped,160, most_occured_words)
+    return(data,most_occured_words)
 
 main()
 
