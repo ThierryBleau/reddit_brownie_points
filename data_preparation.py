@@ -17,8 +17,8 @@ with open("proj1_data.json") as fp:
 data_point = data[0] # select the first data point in the dataset
 
 # Now we print all the information about this datapoint
-for info_name, info_value in data_point.items():
-    print(info_name + " : " + str(info_value))
+#for info_name, info_value in data_point.items():
+    #print(info_name + " : " + str(info_value))
     
 
 def partition(data,split_point):
@@ -37,7 +37,6 @@ def prep(data_input):
         data_input[i]['text'] = data_input[i]['text'].lower().split()
     return data_input
 
-
 def prep2(data):
     for i in range(0,len(data)):
         data[i]['char_lenght']=len(data[i]['text'])
@@ -45,9 +44,9 @@ def prep2(data):
         data[i]['n_o_words'] = len(data[i]['text'])  
         #NOTE if we put this to the regression and the next one, the error will be 18
         #maybe because they have a high covariance
-        data[i]['avg_char_len']=data[i]['char_lenght']/data[i]['n_o_words']        
+        data[i]['avg_char_len']=data[i]['char_lenght']/data[i]['n_o_words']  
+        data[i]['non_linear']=data[i]['is_root']*data[i]['avg_char_len']      
     return data
-
 
 
 def pooled_words(data,n_words):
@@ -58,9 +57,11 @@ def pooled_words(data,n_words):
         all_words.append(data[i]['text'])
     #first makes a list of lists, then a 'flat list'
     flat_list = [item for sublist in all_words for item in sublist]
+
+    filtered = filter(lambda x: len(x)>2, flat_list)
     
     #calculates word count
-    Counter = Counter(flat_list)
+    Counter = Counter(filtered)
     most_occur = Counter.most_common(n_words)
 
     #creates a list the most occured words
@@ -88,6 +89,8 @@ def feature_most_occured(data,n_words, most_occured_words):
     return data
 
 
+
+
 #NOT USED
 def order_of_most_occured(data,n_words, most_occured_words):
     #creates a matrix for every dict member; size is 2 rows, 160 colums
@@ -111,18 +114,17 @@ def order_of_most_occured(data,n_words, most_occured_words):
 
     return data
 
-
-
-
 def main():
     with open("proj1_data.json") as fp:
         data = json.load(fp)
     
     data_prepped = prep(data)
     most_occured_words = pooled_words(data_prepped,160)
-    data = feature_most_occured(data_prepped,160, most_occured_words)
-    
+    data = feature_most_occured(data_prepped,160, most_occured_words)   
+    data = text_lenght_feature(data)
     return(data_prepped,most_occured_words)
+
+
 
 
 def main2():
@@ -135,7 +137,5 @@ def main2():
     #call the next line of you want to add the ordering of the most occured words or distance
     #data = order_of_most_occured(data_prepped,160, most_occured_words)
     return(data,most_occured_words)
-
-main()
 
 
