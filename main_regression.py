@@ -61,12 +61,22 @@ def get_occurence_matrix(data):
             occurence_matrix[i].append(hfword[1])
     return(np.array(occurence_matrix).T)
 
+def closed_form(x,y): 
+    # note to group b4 submittion: the shape of the input x must be given in the form
+    # (data,features) i.e (10000, 65) and not (65, 10000)... bc it makes more 
+    # sense to me... thierrys data_ironing returns (features, data)
+    # ### will delet comment b4 submittion ###
+    start_time = time.time()
+    ones = np.ones((x.shape[0],1)) 
+    X = np.column_stack((x, ones))
+    xTy = np.dot(X.T, y)
+    xTx = np.dot(X.T, X)
+    xTxinv = np.linalg.pinv(xTx) 
 
-def closed_form():
-    x = np.column_stack((ones,training_data))
-    w = np.dot(np.linalg.pinv(x),y) #x inverse times y
-    regression = w[0] + w[1]*training_data
-    return(regression)
+    w_est = np.dot(xTxinv,xTy)
+    runtime = time.time()- start_time
+    return (w_est, runtime)
+
 
 def matrix_gradient(XTX,XTy,weight_vector):
     XTXw = np.dot(XTX,weight_vector)
@@ -74,8 +84,6 @@ def matrix_gradient(XTX,XTy,weight_vector):
     return(XTXw-XTy)
 
 x = data_ironing(training_data)
-#print(x.shape)
-
 
 def main_gradient_function(in_eta_0,in_epsilon,dynamic):
     num_features = x.shape[0] #163 coming from data + bias term
@@ -110,8 +118,14 @@ def main_gradient_function(in_eta_0,in_epsilon,dynamic):
 
 def prediction(x,w):
     pop_pred = np.dot(x.T,w)
-    #print(pop_pred)
     return(pop_pred)
+
+def prediction_closed(x, w):
+    ones = np.ones((x.shape[0],1)) 
+    X = np.column_stack((x, ones))
+
+    p = np.dot(X,w)
+    return p
 
 def least_squares(pred,validation_data):
     y = get_vector(validation_data,'popularity_score')
@@ -126,6 +140,9 @@ def testing_function(in_eta_0,in_epsilon,dynamic):
     error = least_squares(pred,validation)
     return(error,runtime)
 
-
-
-
+def test_closed():
+    w, runt = closed_form(x.T, y)
+    x_bar = data_ironing(validation).T
+    pred = prediction_closed(x_bar, w)
+    err = least_squares(pred, validation)
+    return(err,runt)
